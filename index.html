@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkerHub - Choose Your Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen hero-bg flex items-center justify-center">
+        <div class="text-center text-white max-w-4xl mx-auto px-4">
+            <h1 class="text-6xl font-bold mb-6 animate-float">
+                🌾 <span class="text-yellow-400">WorkerHub</span>
+            </h1>
+            <p class="text-2xl mb-12 text-gray-200">Agricultural Contractor Platform - Choose Your Interface</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Contractor Platform -->
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 card-hover cursor-pointer" onclick="window.location.href='contractor-index.html'">
+                    <div class="text-6xl mb-4">🌾</div>
+                    <h3 class="text-2xl font-bold mb-4 text-green-400">Contractor Platform</h3>
+                    <p class="text-gray-200 mb-6">For contractors managing worker groups and accepting jobs</p>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-all">
+                        Enter Platform
+                    </button>
+                </div>
+
+                <!-- Worker Platform -->
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 card-hover cursor-pointer" onclick="window.location.href='worker-index.html'">
+                    <div class="text-6xl mb-4">👷</div>
+                    <h3 class="text-2xl font-bold mb-4 text-blue-400">Worker Platform</h3>
+                    <p class="text-gray-200 mb-6">For individual workers seeking daily wage jobs</p>
+                    <button class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all">
+                        Enter Platform
+                    </button>
+                </div>
+
+                <!-- Owner Platform -->
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 card-hover cursor-pointer" onclick="window.location.href='owner-index.html'">
+                    <div class="text-6xl mb-4">💼</div>
+                    <h3 class="text-2xl font-bold mb-4 text-purple-400">Owner Platform</h3>
+                    <p class="text-gray-200 mb-6">For employers posting jobs and hiring workers</p>
+                    <button class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-all">
+                        Enter Platform
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <p class="text-gray-300 text-lg">Empowering rural employment across India 🇮🇳</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
