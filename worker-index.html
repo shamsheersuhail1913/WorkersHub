@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkerHub - Worker Platform</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        /* Copy Protection */
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Stylish Button Text */
+        .stylish-button-text {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Professional Switch Button */
+        .professional-switch-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            width: 70px;
+            height: 70px;
+        }
+
+        .professional-switch-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .professional-switch-btn:hover::before {
+            left: 100%;
+        }
+
+        .professional-switch-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+
+        const Icons = {
+            Search: () => <span>🔍</span>,
+            MapPin: () => <span>📍</span>,
+            Users: () => <span>👥</span>,
+            DollarSign: () => <span>💰</span>,
+            Menu: () => <span>☰</span>,
+            X: () => <span>✕</span>,
+            ChevronRight: () => <span>→</span>,
+            Briefcase: () => <span>💼</span>,
+            TrendingUp: () => <span>📈</span>
+        };
+
+        const WorkerPlatform = () => {
+          const [activeTab, setActiveTab] = useState('home');
+          const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+          // Copy Protection
+          React.useEffect(() => {
+            const preventCopy = (e) => {
+              e.preventDefault();
+              return false;
+            };
+
+            const preventContextMenu = (e) => {
+              e.preventDefault();
+              return false;
+            };
+
+            document.addEventListener('contextmenu', preventContextMenu);
+            document.addEventListener('copy', preventCopy);
+            document.addEventListener('paste', preventCopy);
+            document.addEventListener('cut', preventCopy);
+            document.addEventListener('selectstart', preventCopy);
+
+            return () => {
+              document.removeEventListener('contextmenu', preventContextMenu);
+              document.removeEventListener('copy', preventCopy);
+              document.removeEventListener('paste', preventCopy);
+              document.removeEventListener('cut', preventCopy);
+              document.removeEventListener('selectstart', preventCopy);
+            };
+          }, []);
+
+          const categories = [
+            { id: 'agriculture', name: 'Agriculture Workers', icon: '🚜', color: 'from-blue-500 to-blue-600', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7DMPvL71i7D2UuKO3Y-RG2mE2TZgMJR9THA&s' },
+            { id: 'plumber', name: 'Plumber', icon: '🔧', color: 'from-blue-500 to-blue-600', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80' },
+            { id: 'electrician', name: 'Electrician', icon: '⚡', color: 'from-yellow-500 to-yellow-600', image: 'https://st3.depositphotos.com/1005682/17020/i/450/depositphotos_170201816-stock-photo-young-indian-electrician.jpg' },
+            { id: 'construction', name: 'Construction Labor', icon: '🏗️', color: 'from-orange-500 to-orange-600', image: 'https://www.shutterstock.com/image-photo/happy-indian-male-construction-worker-260nw-2317221223.jpg' },
+            { id: 'carpenter', name: 'Carpenter', icon: '🪚', color: 'from-amber-600 to-amber-700', image: 'https://st.focusedcollection.com/17445926/i/650/focused_213742262-stock-photo-carpenter-working-chisel-hammer-floor.jpg' },
+            { id: 'mechanic', name: 'Mechanic', icon: '🔩', color: 'from-gray-600 to-gray-700', image: 'https://static.vecteezy.com/system/resources/previews/041/907/711/large_2x/indian-car-mechanic-standing-and-working-in-service-station-car-specialists-examining-the-lifted-car-professional-repairmen-wearing-mechanic-uniform-in-blue-color-photo.jpg' }
+          ];
+
+          const Navigation = () => (
+            <nav className="bg-white shadow-md sticky top-0 z-50">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="flex justify-between items-center h-16">
+                  <div className="flex items-center">
+                    <h1 className="text-2xl font-bold text-blue-600">👷 WorkerHub</h1>
+                  </div>
+                  
+                  <div className="hidden md:flex items-center space-x-8">
+                    <button onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} className="text-gray-700 hover:text-blue-600 font-semibold">Home</button>
+                    <button onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} className="text-gray-700 hover:text-blue-600 font-semibold">Jobs</button>
+                    <button onClick={() => { setActiveTab('about'); window.scrollTo(0,0); }} className={`font-semibold ${activeTab === 'about' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}>About</button>
+                  </div>
+
+                  <div className="hidden md:flex items-center space-x-4">
+                    <button className="text-gray-700 hover:text-blue-600 font-semibold">LOGIN</button>
+                    <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold">SIGN UP</button>
+                  </div>
+
+                  <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                    {mobileMenuOpen ? <Icons.X /> : <Icons.Menu />}
+                  </button>
+                </div>
+              </div>
+
+              {mobileMenuOpen && (
+                <div className="md:hidden bg-white border-t">
+                  <div className="px-4 py-4 space-y-3">
+                    <button onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} className="block w-full text-left text-gray-700 hover:text-blue-600 font-semibold">Home</button>
+                    <button onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} className="block w-full text-left text-gray-700 hover:text-blue-600 font-semibold">Jobs</button>
+                    <button onClick={() => { setActiveTab('about'); window.scrollTo(0,0); }} className="block w-full text-left text-gray-700 hover:text-blue-600 font-semibold">About</button>
+                  </div>
+                </div>
+              )}
+            </nav>
+          );
+
+          const HomePage = () => (
+            <div className="min-h-screen">
+              <div className="relative h-[600px] hero-bg overflow-hidden">
+                <div className="absolute inset-0 bg-black opacity-40"></div>
+                
+                <div className="relative z-10 max-w-7xl mx-auto px-4 h-full flex items-center">
+                  <div className="text-white max-w-3xl">
+                    <h1 className="text-6xl font-bold mb-6 leading-tight animate-float">
+                      FIND <span className="text-yellow-400">JOBS</span> NEAR YOU
+                    </h1>
+                    <p className="text-2xl mb-8 text-gray-200">Join Skilled Workers & Earn Daily Wages in Your Area</p>
+                    
+                    <div className="bg-white rounded-lg shadow-2xl p-4 flex flex-col md:flex-row gap-4">
+                      <div className="flex-1 flex items-center border-r border-gray-200 pr-4">
+                        <Icons.MapPin />
+                        <input 
+                          type="text" 
+                          placeholder="Enter Your Village or City"
+                          className="w-full outline-none text-gray-700 ml-2"
+                        />
+                      </div>
+                      <div className="flex-1 flex items-center pr-4">
+                        <Icons.Briefcase />
+                        <select className="w-full outline-none text-gray-700 ml-2">
+                          <option>Select Your Skill</option>
+                          {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-lg font-semibold flex items-center justify-center transition-all">
+                        <Icons.Search />
+                        <span className="ml-2">FIND JOBS</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white py-6 shadow-md">
+                <div className="max-w-7xl mx-auto px-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="relative overflow-hidden rounded-lg card-hover">
+                      <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Workers" className="w-full h-24 object-cover" />
+                      <div className="absolute inset-0 bg-blue-600 bg-opacity-75 flex items-center justify-center">
+                        <span className="text-white font-semibold">👷 For Workers</span>
+                      </div>
+                    </div>
+                    <div className="relative overflow-hidden rounded-lg card-hover">
+                      <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Daily Jobs" className="w-full h-24 object-cover" />
+                      <div className="absolute inset-0 bg-orange-600 bg-opacity-75 flex items-center justify-center">
+                        <span className="text-white font-semibold">💼 Daily Jobs</span>
+                      </div>
+                    </div>
+                    <div className="relative overflow-hidden rounded-lg card-hover">
+                      <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Fair Wages" className="w-full h-24 object-cover" />
+                      <div className="absolute inset-0 bg-green-600 bg-opacity-75 flex items-center justify-center">
+                        <span className="text-white font-semibold">💰 Fair Wages</span>
+                      </div>
+                    </div>
+                    <div className="relative overflow-hidden rounded-lg card-hover">
+                      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Quick Payment" className="w-full h-24 object-cover" />
+                      <div className="absolute inset-0 bg-purple-600 bg-opacity-75 flex items-center justify-center">
+                        <span className="text-white font-semibold">⚡ Quick Payment</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="py-16 bg-gray-50">
+                <div className="max-w-7xl mx-auto px-4">
+                  <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">Available Job Categories</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {categories.map(category => (
+                      <div key={category.id} className="bg-white rounded-xl shadow-lg overflow-hidden card-hover cursor-pointer">
+                        <div className="relative h-48 group overflow-hidden">
+                          <img src={category.image} alt={category.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-black bg-opacity-10 group-hover:bg-opacity-0 transition-all"></div>
+                        </div>
+                        <div className="p-6">
+                          <h3 className="text-xl font-bold text-gray-800 mb-2">{category.name}</h3>
+                          <p className="text-gray-600 mb-4">₹400-800 per day</p>
+                          <button 
+                            onClick={() => setActiveTab('register')}
+                            className="text-blue-600 font-semibold flex items-center hover:text-blue-800"
+                          >
+                            Apply Now <Icons.ChevronRight />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="py-12 bg-gradient-to-r from-blue-700 to-blue-600">
+                <div className="max-w-7xl mx-auto px-4 text-center">
+                  <h2 className="text-4xl font-bold text-white mb-4">
+                    Special Focus on <span className="text-yellow-300">DAILY WORKERS!</span>
+                  </h2>
+                  <p className="text-xl text-white opacity-90">Empowering workers with quick access to daily job opportunities</p>
+                </div>
+              </div>
+
+              <div className="py-16 bg-white">
+                <div className="max-w-7xl mx-auto px-4">
+                  <h2 className="text-4xl font-bold text-center mb-16 text-gray-800">How It Works</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="text-center">
+                      <div className="bg-blue-600 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg animate-float">1</div>
+                      <h3 className="text-2xl font-bold mb-4 text-gray-800">Register Your Profile</h3>
+                      <p className="text-gray-600 mb-4 italic">Create your worker profile with skills.</p>
+                      <div className="bg-gray-100 rounded-lg p-4 h-48 flex items-center justify-center card-hover">
+                        <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Register" className="w-full h-full object-cover rounded" />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="bg-blue-600 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg animate-float">2</div>
+                      <h3 className="text-2xl font-bold mb-4 text-gray-800">Get Job Notifications</h3>
+                      <p className="text-gray-600 mb-4 italic">Receive job alerts in your area.</p>
+                      <div className="bg-gray-100 rounded-lg p-4 h-48 flex items-center justify-center card-hover">
+                        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Notifications" className="w-full h-full object-cover rounded" />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="bg-blue-600 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg animate-float">3</div>
+                      <h3 className="text-2xl font-bold mb-4 text-gray-800">Work & Get Paid</h3>
+                      <p className="text-gray-600 mb-4 italic">Complete jobs and earn daily wages.</p>
+                      <div className="bg-gray-100 rounded-lg p-4 h-48 flex items-center justify-center card-hover">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Get Paid" className="w-full h-full object-cover rounded" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="py-16 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+                <div className="max-w-7xl mx-auto px-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div>
+                      <div className="text-5xl font-bold text-yellow-400 mb-2">2,000+</div>
+                      <div className="text-gray-300">Daily Jobs Available</div>
+                    </div>
+                    <div>
+                      <div className="text-5xl font-bold text-yellow-400 mb-2">₹500+</div>
+                      <div className="text-gray-300">Average Daily Wage</div>
+                    </div>
+                    <div>
+                      <div className="text-5xl font-bold text-yellow-400 mb-2">10,000+</div>
+                      <div className="text-gray-300">Registered Workers</div>
+                    </div>
+                    <div>
+                      <div className="text-5xl font-bold text-yellow-400 mb-2">50+</div>
+                      <div className="text-gray-300">Villages Covered</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="py-16 bg-gradient-to-r from-blue-600 to-blue-500">
+                <div className="max-w-4xl mx-auto px-4 text-center text-white">
+                  <h2 className="text-4xl font-bold mb-6">Ready to Start Working?</h2>
+                  <p className="text-xl mb-8">Join thousands of workers earning daily wages</p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button
+                      onClick={() => setActiveTab('register')}
+                      className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all shadow-lg"
+                    >
+                      Register as Worker
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('jobs')}
+                      className="bg-yellow-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-yellow-600 transition-all shadow-lg"
+                    >
+                      Browse Jobs
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+          const RegisterPage = () => (
+            <div className="min-h-screen bg-gray-50 py-12">
+              <div className="max-w-4xl mx-auto px-4">
+                <div className="bg-white rounded-xl shadow-lg p-8">
+                  <h2 className="text-3xl font-bold mb-8 text-gray-800">Worker Registration</h2>
+                  
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-gray-700 font-semibold mb-2">Full Name</label>
+                        <input 
+                          type="text"
+                          placeholder="Enter your full name"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 font-semibold mb-2">Mobile Number</label>
+                        <input 
+                          type="tel"
+                          placeholder="Enter mobile number"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input 
+                          type="email"
+                          placeholder="Enter email address"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 font-semibold mb-2">Age</label>
+                        <input 
+                          type="number"
+                          placeholder="Enter your age"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-gray-700 font-semibold mb-2">Address</label>
+                        <textarea 
+                          rows="3"
+                          placeholder="Enter your complete address"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        ></textarea>
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 font-semibold mb-2">Village/City</label>
+                        <input 
+                          type="text"
+                          placeholder="Enter your village or city"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 font-semibold mb-2">Expected Daily Wage (₹)</label>
+                        <input 
+                          type="number"
+                          placeholder="e.g., 500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-gray-700 font-semibold mb-2">Skills Available</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {categories.map(cat => (
+                            <label key={cat.id} className="relative h-32 cursor-pointer group rounded-lg overflow-hidden border-2 border-gray-200 hover:border-blue-400 transition-all">
+                              <input type="checkbox" className="peer sr-only" />
+                              <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-black bg-opacity-50 peer-checked:bg-opacity-30 transition-all"></div>
+                              <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                                <span className="font-bold text-lg text-center px-2 drop-shadow-md">{cat.name}</span>
+                              </div>
+                              <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                <div className="bg-blue-600 text-white rounded-full p-1">
+                                  <span className="text-xs font-bold">✓</span>
+                                </div>
+                              </div>
+                              <div className="absolute inset-0 border-2 border-transparent peer-checked:border-blue-500 rounded-lg pointer-events-none"></div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-all">
+                      Register as Worker
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-white rounded-lg shadow p-6 text-center card-hover">
+                    <Icons.TrendingUp className="mx-auto mb-4 text-blue-600" size={48} />
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">Find Jobs</h3>
+                    <p className="text-gray-600">Get job opportunities in your area</p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-6 text-center card-hover">
+                    <Icons.DollarSign className="mx-auto mb-4 text-blue-600" size={48} />
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">Fair Wages</h3>
+                    <p className="text-gray-600">Set your own rates and get paid fairly</p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-6 text-center card-hover">
+                    <Icons.Users className="mx-auto mb-4 text-blue-600" size={48} />
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">Direct Contact</h3>
+                    <p className="text-gray-600">Connect directly with employers</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+          const AboutPage = () => (
+            <div className="min-h-screen bg-gray-50 py-12">
+              <div className="max-w-4xl mx-auto px-4">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <div className="relative h-64">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Team" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-blue-900 bg-opacity-70 flex items-center justify-center">
+                      <h1 className="text-5xl font-bold text-white">About Us</h1>
+                    </div>
+                  </div>
+                  
+                  <div className="p-8 space-y-8">
+                    <section>
+                      <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Mission</h2>
+                      <p className="text-gray-600 leading-relaxed text-lg">
+                        At WorkerHub, we are dedicated to bridging the gap between skilled agricultural workers and farm owners. 
+                        Our platform was born from a simple observation: while talent exists in every village, connecting that talent 
+                        with the right opportunities remains a challenge. We aim to digitize this connection, ensuring fair wages for 
+                        workers and reliable labor for contractors.
+                      </p>
+                    </section>
+
+                    <section className="grid md:grid-cols-2 gap-8">
+                      <div className="bg-green-50 p-6 rounded-lg border border-green-100">
+                        <h3 className="text-xl font-bold text-green-800 mb-3">For Owners</h3>
+                        <p className="text-gray-700">
+                          We provide a hassle-free way to find verified, skilled labor for your agricultural needs. 
+                          Whether it's harvest season or daily maintenance, find the right team instantly.
+                        </p>
+                      </div>
+                      <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                        <h3 className="text-xl font-bold text-blue-800 mb-3">For Workers</h3>
+                        <p className="text-gray-700">
+                          We empower daily wage workers by giving them visibility and access to consistent job opportunities 
+                          in their local area, ensuring dignity of labor and fair pay.
+                        </p>
+                      </div>
+                    </section>
+
+                    <section>
+                      <h2 className="text-3xl font-bold text-gray-800 mb-4">Who We Are</h2>
+                      <p className="text-gray-600 leading-relaxed text-lg mb-6">
+                        WorkerHub was created by a team of passionate developers and agricultural enthusiasts who believe in 
+                        the power of technology to transform rural economies. We understand the pulse of the agricultural sector 
+                        and have designed this platform to be simple, accessible, and effective for everyone.
+                      </p>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+          const Footer = () => (
+            <footer id="contact-us" className="bg-gray-900 text-white pt-16 pb-8">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                  <div>
+                    <h3 className="text-2xl font-bold text-blue-500 mb-4">👷 WorkerHub</h3>
+                    <p className="text-gray-400">Connecting skilled workers with employers across the agricultural sector. Making hiring simple, fast, and reliable.</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul className="space-y-2 text-gray-400">
+                      <li><button onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} className="hover:text-blue-500 text-left">Home</button></li>
+                      <li><button onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} className="hover:text-blue-500 text-left">Jobs</button></li>
+                      <li><button onClick={() => { setActiveTab('about'); window.scrollTo(0,0); }} className="hover:text-blue-500 text-left">About Us</button></li>
+                      <li><button onClick={() => document.getElementById('contact-us').scrollIntoView({ behavior: 'smooth' })} className="hover:text-blue-500 text-left">Contact</button></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold mb-4">Contact Us</h4>
+                    <ul className="space-y-2 text-gray-400">
+                      <li className="flex items-center"><span className="mr-2">📞</span> +91 98765 43210</li>
+                      <li className="flex items-center"><span className="mr-2">✉️</span> support@workerhub.com</li>
+                      <li className="flex items-center"><span className="mr-2">📍</span> 123 Farm Road, Agri District, India</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold mb-4">Newsletter</h4>
+                    <div className="flex">
+                      <input type="email" placeholder="Your email" className="px-4 py-2 rounded-l-lg w-full text-gray-900 outline-none" />
+                      <button className="bg-blue-600 px-4 py-2 rounded-r-lg hover:bg-blue-700">Subscribe</button>
+                    </div>
+                  </div>
+                </div>
+                <div className="border-t border-gray-800 pt-8 text-center text-gray-500">
+                  <p>&copy; 2024 WorkerHub. All rights reserved.</p>
+                </div>
+              </div>
+            </footer>
+          );
+
+          return (
+            <div className="min-h-screen bg-gray-50">
+              {/* Floating Contractor Button */}
+              <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-50">
+                <button
+                  onClick={() => window.location.href = 'owner-index.html'}
+                  className="bg-green-600 text-white w-20 h-20 flex items-center justify-center rounded-full shadow-lg hover:bg-green-700 transition-all animate-pulse"
+                  title="Switch to Owner Registration"
+                >
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs font-semibold">Switch</span>
+                  </div>
+                </button>
+              </div>
+
+              <Navigation />
+              
+              {activeTab === 'home' && <HomePage />}
+              {activeTab === 'register' && <RegisterPage />}
+              {activeTab === 'about' && <AboutPage />}
+              <Footer />
+            </div>
+          );
+        };
+
+        ReactDOM.render(<WorkerPlatform />, document.getElementById('root'));
+    </script>
+</body>
+</html>
